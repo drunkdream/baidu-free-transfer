@@ -13,6 +13,7 @@ class BaiduFileTransfer(object):
         self._share_key = share_key
         self._pwd = pwd
         self._root_path = root_path or ""
+        self._share_root = ""
         self._user_id = None
         self._share_id = None
         self._dir_list = []
@@ -32,6 +33,7 @@ class BaiduFileTransfer(object):
         self._user_id = share_data["user_id"]
         self._share_id = share_data["share_id"]
         self._api.bdstoken = share_data["bdstoken"]
+        self._share_root = share_data["root_path"]
         self._dir_list = share_data["dir_list"]
         self._file_list = share_data["file_list"]
 
@@ -86,8 +88,14 @@ class BaiduFileTransfer(object):
             else:
                 # transfer subdirs and files
                 dir = dir_list[0]
+                dir_path = self._share_root
+                if target_path[len(self._root_path) :]:
+                    dir_path += target_path[len(self._root_path) :]
+                dir_path += "/" + dir["name"]
                 dir_list, file_list = await self._api.list_share_dir(
-                    self._user_id, self._share_id, target_path + "/" + dir["name"]
+                    self._user_id,
+                    self._share_id,
+                    dir_path,
                 )
                 if dir_list:
                     await self.transfer_dirs(dir_list, target_path + "/" + dir["name"])

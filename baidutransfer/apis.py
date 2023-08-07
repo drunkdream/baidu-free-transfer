@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import urllib.parse
 
 from . import utils
 
@@ -126,11 +127,13 @@ class BaiduYunPanAPI(object):
             raise RuntimeError("Invalid body: %s" % body)
         pos2 = body.find("});", pos)
         data = json.loads(body[pos + 12 : pos2 + 1])
+        root_path = urllib.parse.unquote(data["file_list"][0]["parent_path"])
         dir_list, file_list = self._process_dir_file_list(data["file_list"])
         return {
             "user_id": data["share_uk"],
             "share_id": data["shareid"],
             "bdstoken": data["bdstoken"],
+            "root_path": root_path,
             "dir_list": dir_list,
             "file_list": file_list,
         }
