@@ -25,6 +25,7 @@ async def main():
     )
     parser.add_argument("-C", "--cookie", help="cookie of pan.baidu.com")
     parser.add_argument("-p", "--password", help="share password")
+    parser.add_argument("-r", "--root", help="remote root path, e.g. /remote/path")
 
     args = parser.parse_args()
     url = urllib.parse.urlparse(args.url)
@@ -37,6 +38,12 @@ async def main():
     if not share_key:
         print("Invalid url %s" % args.url, file=sys.stderr)
         return -1
+
+    # Extracting password from the URL if it's not provided
+    if args.password is None:
+        url_params = urllib.parse.parse_qs(url.query)
+        if "pwd" in url_params:
+            args.password = url_params["pwd"][0].strip()
 
     cookie = None
     if os.path.isfile(args.config):
@@ -62,7 +69,7 @@ async def main():
     utils.logger.addHandler(handler)
 
     api = apis.BaiduYunPanAPI(cookie)
-    bft = transfer.BaiduFileTransfer(api, share_key, args.password)
+    bft = transfer.BaiduFileTransfer(api, share_key, args.password, args.root)
     await bft.init_share_data()
 
     await bft.transfer()
