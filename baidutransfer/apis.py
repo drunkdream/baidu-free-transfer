@@ -5,7 +5,7 @@ import json
 import logging
 import urllib.parse
 
-from . import utils
+from baidutransfer import utils
 
 
 class BaiduYunPanAPI(object):

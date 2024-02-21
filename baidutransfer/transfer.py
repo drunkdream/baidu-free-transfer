@@ -2,7 +2,7 @@
 
 import logging
 
-from . import utils
+from baidutransfer import utils
 
 
 class BaiduFileTransfer(object):

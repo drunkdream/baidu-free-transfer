@@ -12,12 +12,13 @@
 
 ```bash
 $ python3 -m pip install -r requirements.txt
-$ python3 -m baidutransfer $url -C $cookie -p $pwd
+$ python3 -m baidutransfer $url -C $cookie -p $pwd -r $root
 ```
 
 - `$url` 是百度网盘的分享地址，如：`https://pan.baidu.com/s/1yQ7wutp3m1XtEhsigf_X6A`或`https://pan.baidu.com/share/init?surl=yQ7wutp3m1XtEhsigf_X6A`
 - `$cookie` 是网页登录到百度网盘后开发者工具获取到的cookie
-- `$pwd` 是分享提取码，如果没有提取码不需要传这个参数
+- `$pwd` 是分享提取码，如果没有提取码不需要传这个参数（如果分享的链接中有pwd参数，-p参数可以省略）
+- `$root`是指定存储到网盘的目录，如果没有此参数，默认存储到网盘根目录
 
 由于cookie可以多次使用，因此支持将cookie保存在yaml格式的配置文件中，格式如下：
 
