@@ -34,6 +34,14 @@ async def main():
             share_key = url.path.split("/")[-1][1:]
         elif url.path == "/share/init":
             share_key = url.query.split("=", 1)[1]
+
+        if url.query:
+            for item in url.query.split('&'):
+                key, val = item.split("=", 1)
+                if key == "pwd":
+                    args.password = val
+                    break
+
     if not share_key:
         print("Invalid url %s" % args.url, file=sys.stderr)
         return -1
