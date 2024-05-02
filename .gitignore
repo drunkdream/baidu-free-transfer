@@ -1,1 +1,4 @@
+.vscode/
+baidu_free_transfer.egg-info/
 *.pyc
+*.yaml

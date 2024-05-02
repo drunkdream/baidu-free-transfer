@@ -11,6 +11,12 @@ USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Ge
 logger = logging.getLogger("baidutransfer")
 
 
+class BaiduYunPanResourceNotFoundError(RuntimeError):
+    """Baidu YunPan Resource Not Found Error"""
+
+    pass
+
+
 class BaiduYunPanRedirectError(RuntimeError):
     """Baidu YunPan Redirect Error"""
 
@@ -42,6 +48,17 @@ class BaiduYunPanAPIError(RuntimeError):
     @property
     def errmsg(self):
         return self._errmsg
+
+
+class BaiduYunPanAPIParameterError(BaiduYunPanAPIError):
+    """API Parameter Error"""
+
+    def __init__(self, url, params):
+        self._url = url
+        self._params = params
+
+    def __str__(self):
+        return "APIParameterError: url=%s param=%s" % (self._url, json.dumps(self._params))
 
 
 class TransferLimitExceededError(RuntimeError):
