@@ -43,6 +43,8 @@ class BaiduYunPanAPI(object):
         )
         if status_code > 300 and status_code < 400:
             raise utils.BaiduYunPanRedirectError(headers["Location"])
+        if isinstance(body, str) and "百度网盘-链接不存在" in body:
+            raise utils.BaiduYunPanResourceNotFoundError()
         if check_errno and body["errno"]:
             raise utils.BaiduYunPanAPIError(body["errno"], body.get("show_msg"))
         return body
@@ -140,15 +142,23 @@ class BaiduYunPanAPI(object):
 
     async def list_share_dir(self, user_id, share_id, dir_path):
         path = "/share/list"
-        params = {
-            "uk": user_id,
-            "shareid": share_id,
-            "page": "1",
-            "num": "1000",
-            "dir": dir_path,
-        }
-        rsp = await self.request(path, params=params)
-        return self._process_dir_file_list(rsp["list"])
+        page = 1
+        limit = 100
+        dir_file_list = []
+        while True:
+            params = {
+                "uk": user_id,
+                "shareid": share_id,
+                "page": page,
+                "num": limit,
+                "dir": dir_path,
+            }
+            rsp = await self.request(path, params=params)
+            dir_file_list.extend(rsp["list"])
+            if len(rsp["list"]) < 100:
+                break
+            page += 1
+        return self._process_dir_file_list(dir_file_list)
 
     async def list_dir(self, dir_path):
         path = "/api/list"
@@ -178,11 +188,12 @@ class BaiduYunPanAPI(object):
             "fsidlist": "[%s]" % ",".join([str(it) for it in fsid_list]),
             "path": transfer_path or "/",
         }
-
         rsp = await self.request(
             path, "post", params=params, data=data, check_errno=False
         )
-        if rsp["errno"] == 12:
+        if rsp["errno"] == 2:
+            raise utils.BaiduYunPanAPIParameterError(path, data)
+        elif rsp["errno"] == 12:
             raise utils.TransferLimitExceededError(
                 rsp["target_file_nums_limit"], rsp["target_file_nums"]
             )
