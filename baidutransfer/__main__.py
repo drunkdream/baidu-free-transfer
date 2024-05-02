@@ -71,9 +71,12 @@ async def main():
 
     api = apis.BaiduYunPanAPI(cookie)
     bft = transfer.BaiduFileTransfer(api, share_key, args.password)
-    await bft.init_share_data()
-
-    await bft.transfer()
+    try:
+        await bft.init_share_data()
+    except utils.BaiduYunPanResourceNotFoundError:
+        utils.logger.error("Resource %s has been expired" % args.url)
+    else:
+        await bft.transfer()
 
 
 if __name__ == "__main__":
