@@ -48,7 +48,9 @@ class BaiduFileTransfer(object):
         return dir_list, file_list
 
     async def transfer_files(self, file_list, target_path):
-        max_transfer_count = 500
+        if target_path:
+            await self._api.create_directory(target_path)
+        max_transfer_count = 100
         offset = 0
         while offset < len(file_list):
             await self._api.transfer(
@@ -104,10 +106,11 @@ class BaiduFileTransfer(object):
                         file_list, target_path + "/" + dir["name"]
                     )
         else:
-            utils.logger.info(
-                "[%s] Transfer directory %s success"
-                % (self.__class__.__name__, ",".join(dir_paths))
-            )
+            for dir_path in dir_paths:
+                utils.logger.info(
+                    "[%s] Transfer directory %s success"
+                    % (self.__class__.__name__, dir_path)
+                )
 
     async def transfer(self):
         if self._dir_list:
